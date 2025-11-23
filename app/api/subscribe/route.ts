@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     
     const auth = new google.auth.JWT(
       GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      null,
+      undefined,
       GOOGLE_PRIVATE_KEY,
       ['https://www.googleapis.com/auth/spreadsheets']
     )
