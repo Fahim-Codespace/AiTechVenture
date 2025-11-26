@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Use Google Sheets API to append the data
+    // Use Google Sheets API to check for duplicates and append the data
     const { google } = await import('googleapis')
 
     try {
@@ -99,6 +99,21 @@ export async function POST(request: NextRequest) {
       )
 
       const sheets = google.sheets({ version: 'v4', auth })
+
+      // First, check if this email is already subscribed (assuming column B holds the email)
+      const existing = await sheets.spreadsheets.values.get({
+        spreadsheetId: GOOGLE_SHEETS_ID,
+        range: 'Sheet1!B:B',
+      })
+
+      const existingEmails = (existing.data.values || []).flat().map((v: string) => v.toLowerCase())
+
+      if (existingEmails.includes(trimmedEmail)) {
+        return NextResponse.json(
+          { error: 'This email is already subscribed.' },
+          { status: 409 }
+        )
+      }
 
       // Append the new row to the sheet
       // Assuming the sheet has columns: Name, Email, Timestamp
