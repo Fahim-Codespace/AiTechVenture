@@ -115,7 +115,7 @@ export default function NewsletterForm() {
 
       if (response.ok) {
         setStatus('success')
-        setMessage('Successfully subscribed! Check your email for confirmation.')
+        setMessage('Successfully subscribed! You have been added to our newsletter list.')
         setFormData({ name: '', email: '' })
         // Close modal after 2 seconds on success (if in modal context)
         if (closeModal) {
