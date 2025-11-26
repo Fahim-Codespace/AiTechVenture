@@ -163,7 +163,6 @@ export default function NewsletterForm() {
           value={formData.email}
           onChange={handleEmailChange}
           onBlur={handleEmailBlur}
-          pattern="[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*"
           className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
             emailError
               ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
