@@ -135,21 +135,29 @@ export async function POST(request: NextRequest) {
       const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
 
       if (GMAIL_USER && GMAIL_APP_PASSWORD) {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: GMAIL_USER,
-            pass: GMAIL_APP_PASSWORD,
-          },
+        console.log('Attempting to send welcome email', {
+          hasUser: !!GMAIL_USER,
+          hasPass: !!GMAIL_APP_PASSWORD,
         })
 
-        const firstName = name.trim().split(' ')[0] || 'there'
+        try {
+          const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user: GMAIL_USER,
+              pass: GMAIL_APP_PASSWORD,
+            },
+          })
 
-        const mailOptions = {
-          from: `"AInTECH Weekly" <${GMAIL_USER}>`,
-          to: trimmedEmail,
-          subject: 'Welcome to AInTECH Weekly 🚀',
-          text: `Hello ${firstName},
+          const firstName = name.trim().split(' ')[0] || 'there'
+
+          const mailOptions = {
+            from: `"AInTECH Weekly" <${GMAIL_USER}>`,
+            to: trimmedEmail,
+            subject: 'Welcome to AInTECH Weekly 🚀',
+            text: `Hello ${firstName},
 
 Welcome to AInTECH Weekly!
 
@@ -157,8 +165,8 @@ You’re now subscribed to our weekly newsletter where we break down AI breakthr
 
 Stay tuned for your first issue soon.
 
-— The AInTECH Venture Team`,
-          html: `<p>Hello <strong>${firstName}</strong>,</p>
+— The AiTechVenture Team`,
+            html: `<p>Hello <strong>${firstName}</strong>,</p>
 <p>Welcome to <strong>AInTECH Weekly</strong>!</p>
 <p>You're now subscribed to our weekly newsletter where we share:</p>
 <ul>
@@ -167,12 +175,14 @@ Stay tuned for your first issue soon.
   <li>Actionable insights you can apply to your own projects</li>
 </ul>
 <p>Stay tuned for your first issue soon.</p>
-<p>— The <strong>AInTECH Venture</strong> Team</p>`,
-        }
+<p>— The <strong>AiTechVenture</strong> Team</p>`,
+          }
 
-        transporter.sendMail(mailOptions).catch((emailError) => {
+          await transporter.sendMail(mailOptions)
+          console.log('Welcome email sent successfully')
+        } catch (emailError) {
           console.error('Failed to send welcome email:', emailError)
-        })
+        }
       } else {
         console.warn('Skipping welcome email: GMAIL_USER or GMAIL_APP_PASSWORD not configured')
       }
