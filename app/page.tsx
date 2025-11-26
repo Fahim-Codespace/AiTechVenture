@@ -1,6 +1,19 @@
+'use client'
+
 import Link from 'next/link'
+import { useSubscriptionModal } from '@/components/SubscriptionModalContext'
+import { usePathname } from 'next/navigation'
 
 export default function Home() {
+  const { openModal } = useSubscriptionModal()
+  const pathname = usePathname()
+  
+  const handleSubscribeClick = (e: React.MouseEvent) => {
+    if (pathname !== '/newsletter') {
+      e.preventDefault()
+      openModal()
+    }
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       {/* Hero Section */}
@@ -21,6 +34,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/newsletter"
+              onClick={handleSubscribeClick}
               className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
             >
               Subscribe to Newsletter
@@ -93,6 +107,7 @@ export default function Home() {
           </p>
           <Link 
             href="/newsletter"
+            onClick={handleSubscribeClick}
             className="inline-block px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
           >
             Subscribe Now

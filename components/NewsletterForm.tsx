@@ -1,19 +1,103 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { SubscriptionModalContext } from './SubscriptionModalContext'
 
 export default function NewsletterForm() {
+  const modalContext = useContext(SubscriptionModalContext)
+  const closeModal = modalContext?.closeModal
   const [formData, setFormData] = useState({
     name: '',
     email: '',
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const [emailError, setEmailError] = useState('')
+
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    // RFC 5322 compliant email regex (simplified but robust)
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    
+    if (!email) {
+      return false
+    }
+    
+    // Check basic format
+    if (!emailRegex.test(email)) {
+      return false
+    }
+    
+    // Additional checks for common junk patterns
+    const junkPatterns = [
+      /^test@/i,
+      /^admin@/i,
+      /^noreply@/i,
+      /@test\./i,
+      /@example\./i,
+      /@localhost/i,
+      /\.test$/i,
+      /^[a-z]+@[a-z]+$/i, // Simple pattern like "abc@def" without proper domain
+    ]
+    
+    // Check for junk patterns
+    if (junkPatterns.some(pattern => pattern.test(email))) {
+      return false
+    }
+    
+    // Check for minimum length and proper structure
+    if (email.length < 5 || !email.includes('@') || !email.includes('.')) {
+      return false
+    }
+    
+    // Check domain has at least one dot after @
+    const domain = email.split('@')[1]
+    if (!domain || !domain.includes('.')) {
+      return false
+    }
+    
+    // Check TLD is at least 2 characters
+    const tld = domain.split('.').pop()
+    if (!tld || tld.length < 2) {
+      return false
+    }
+    
+    return true
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value
+    setFormData({ ...formData, email })
+    
+    // Clear error when user starts typing
+    if (emailError) {
+      setEmailError('')
+    }
+  }
+
+  const handleEmailBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const email = e.target.value.trim()
+    if (email && !validateEmail(email)) {
+      setEmailError('Please enter a valid email address')
+    } else {
+      setEmailError('')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
     setMessage('')
+    setEmailError('')
+
+    // Validate email before submitting
+    const trimmedEmail = formData.email.trim()
+    if (!validateEmail(trimmedEmail)) {
+      setStatus('error')
+      setEmailError('Please enter a valid email address')
+      setMessage('Invalid email address. Please check and try again.')
+      return
+    }
 
     try {
       const response = await fetch('/api/subscribe', {
@@ -21,7 +105,10 @@ export default function NewsletterForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: trimmedEmail,
+        }),
       })
 
       const data = await response.json()
@@ -30,6 +117,12 @@ export default function NewsletterForm() {
         setStatus('success')
         setMessage('Successfully subscribed! Check your email for confirmation.')
         setFormData({ name: '', email: '' })
+        // Close modal after 2 seconds on success (if in modal context)
+        if (closeModal) {
+          setTimeout(() => {
+            closeModal()
+          }, 2000)
+        }
       } else {
         setStatus('error')
         setMessage(data.error || 'Something went wrong. Please try again.')
@@ -68,10 +161,19 @@ export default function NewsletterForm() {
           name="email"
           required
           value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          onChange={handleEmailChange}
+          onBlur={handleEmailBlur}
+          pattern="[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*"
+          className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
+            emailError
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-700 focus:ring-blue-500 focus:border-transparent'
+          }`}
           placeholder="Enter your email"
         />
+        {emailError && (
+          <p className="mt-2 text-sm text-red-400">{emailError}</p>
+        )}
       </div>
 
       {message && (

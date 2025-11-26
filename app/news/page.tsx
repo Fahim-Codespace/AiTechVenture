@@ -1,51 +1,72 @@
+'use client'
+
+import React from 'react'
 import Link from 'next/link'
+import { useSubscriptionModal } from '@/components/SubscriptionModalContext'
+import { usePathname } from 'next/navigation'
 
 const newsItems = [
   {
+    title: 'AI Agents Go Mainstream in Productivity Tools',
+    excerpt:
+      'Major productivity platforms roll out built-in AI agents that can automate multi-step workflows across apps.',
+    category: 'Productivity AI',
+    date: '2025',
+    gradient: 'from-blue-500 to-cyan-500',
+  },
+  {
+    title: 'Generative Video Models Hit Consumer Market',
+    excerpt:
+      'New generative video tools let creators turn simple prompts into high-quality clips for marketing and education.',
+    category: 'Generative AI',
+    date: '2025',
+    gradient: 'from-purple-500 to-pink-500',
+  },
+  {
+    title: 'AI Safety Regulations Gain Momentum',
+    excerpt:
+      'Governments introduce updated AI safety and transparency rules focused on real-world deployments in 2025.',
+    category: 'AI Policy',
+    date: '2025',
+    gradient: 'from-amber-500 to-orange-600',
+  },
+  {
     title: 'Breakthrough in Multimodal AI',
-    excerpt: 'New models can now process text, images, and audio simultaneously, opening doors to more intuitive AI interactions.',
+    excerpt:
+      'New models can now process text, images, and audio simultaneously, opening doors to more intuitive AI interactions.',
     category: 'AI Research',
     date: '2024',
     gradient: 'from-blue-500 to-cyan-500',
   },
   {
     title: 'Quantum AI Accelerates Drug Discovery',
-    excerpt: 'Researchers combine quantum computing with AI to dramatically speed up pharmaceutical research.',
+    excerpt:
+      'Researchers combine quantum computing with AI to dramatically speed up pharmaceutical research.',
     category: 'Healthcare AI',
     date: '2024',
     gradient: 'from-purple-500 to-pink-500',
   },
   {
     title: 'Edge AI Reaches New Milestones',
-    excerpt: 'Latest chips enable complex AI models to run on smartphones and IoT devices with unprecedented efficiency.',
+    excerpt:
+      'Latest chips enable complex AI models to run on smartphones and IoT devices with unprecedented efficiency.',
     category: 'Hardware',
     date: '2024',
     gradient: 'from-green-500 to-emerald-500',
   },
-  {
-    title: 'AI Ethics Framework Adopted Globally',
-    excerpt: 'Major tech companies agree on new standards for responsible AI development and deployment.',
-    category: 'AI Ethics',
-    date: '2024',
-    gradient: 'from-yellow-500 to-orange-500',
-  },
-  {
-    title: 'Generative AI Transforms Creative Industries',
-    excerpt: 'Artists and creators are leveraging AI tools to push creative boundaries in unprecedented ways.',
-    category: 'Creative AI',
-    date: '2024',
-    gradient: 'from-indigo-500 to-blue-500',
-  },
-  {
-    title: 'Autonomous Systems Advance in Real-World Applications',
-    excerpt: 'Self-driving vehicles and robots demonstrate improved safety and reliability in complex environments.',
-    category: 'Robotics',
-    date: '2024',
-    gradient: 'from-red-500 to-rose-500',
-  },
 ]
 
 export default function NewsPage() {
+  const { openModal } = useSubscriptionModal()
+  const pathname = usePathname()
+  
+  const handleSubscribeClick = (e: React.MouseEvent) => {
+    if (pathname !== '/newsletter') {
+      e.preventDefault()
+      openModal()
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black pt-32 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -105,6 +126,7 @@ export default function NewsPage() {
             </p>
             <Link
               href="/newsletter"
+              onClick={handleSubscribeClick}
               className="inline-block px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
             >
               Subscribe to Newsletter

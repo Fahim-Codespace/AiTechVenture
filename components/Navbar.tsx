@@ -2,9 +2,16 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSubscriptionModal } from './SubscriptionModalContext'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { openModal } = useSubscriptionModal()
+  
+  const handleSubscribeClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    openModal()
+  }
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
@@ -25,6 +32,9 @@ export default function Navbar() {
             <Link href="/tech" className="text-gray-300 hover:text-white transition-colors">
               Technologies
             </Link>
+            <Link href="/ai-models" className="text-gray-300 hover:text-white transition-colors">
+              AI Models
+            </Link>
             <Link href="/news" className="text-gray-300 hover:text-white transition-colors">
               News
             </Link>
@@ -33,6 +43,7 @@ export default function Navbar() {
             </Link>
             <Link 
               href="/newsletter" 
+              onClick={handleSubscribeClick}
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all"
             >
               Subscribe
@@ -63,6 +74,9 @@ export default function Navbar() {
             <Link href="/tech" className="block text-gray-300 hover:text-white transition-colors py-2">
               Technologies
             </Link>
+            <Link href="/ai-models" className="block text-gray-300 hover:text-white transition-colors py-2">
+              AI Models
+            </Link>
             <Link href="/news" className="block text-gray-300 hover:text-white transition-colors py-2">
               News
             </Link>
@@ -71,6 +85,7 @@ export default function Navbar() {
             </Link>
             <Link 
               href="/newsletter" 
+              onClick={handleSubscribeClick}
               className="block bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg text-center"
             >
               Subscribe

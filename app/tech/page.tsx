@@ -1,4 +1,8 @@
+'use client'
+
 import Link from 'next/link'
+import { useSubscriptionModal } from '@/components/SubscriptionModalContext'
+import { usePathname } from 'next/navigation'
 
 const technologies = [
   {
@@ -40,6 +44,16 @@ const technologies = [
 ]
 
 export default function TechPage() {
+  const { openModal } = useSubscriptionModal()
+  const pathname = usePathname()
+  
+  const handleSubscribeClick = (e: React.MouseEvent) => {
+    if (pathname !== '/newsletter') {
+      e.preventDefault()
+      openModal()
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black pt-32 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -85,6 +99,7 @@ export default function TechPage() {
             </p>
             <Link
               href="/newsletter"
+              onClick={handleSubscribeClick}
               className="inline-block px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
             >
               Subscribe to Newsletter

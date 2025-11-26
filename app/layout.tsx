@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { SubscriptionModalProvider } from '@/components/SubscriptionModalContext'
+import SubscriptionModal from '@/components/SubscriptionModal'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,11 +21,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        <SubscriptionModalProvider>
+          <Navbar />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+          <SubscriptionModal />
+        </SubscriptionModalProvider>
       </body>
     </html>
   )

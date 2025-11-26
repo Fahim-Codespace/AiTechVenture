@@ -1,6 +1,19 @@
+'use client'
+
 import Link from 'next/link'
+import { useSubscriptionModal } from './SubscriptionModalContext'
+import { usePathname } from 'next/navigation'
 
 export default function Footer() {
+  const { openModal } = useSubscriptionModal()
+  const pathname = usePathname()
+  
+  const handleSubscribeClick = (e: React.MouseEvent) => {
+    if (pathname !== '/newsletter') {
+      e.preventDefault()
+      openModal()
+    }
+  }
   return (
     <footer className="bg-black border-t border-gray-800 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,6 +44,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/ai-models" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  AI Models
+                </Link>
+              </li>
+              <li>
                 <Link href="/news" className="text-gray-400 hover:text-white transition-colors text-sm">
                   News
                 </Link>
@@ -50,6 +68,7 @@ export default function Footer() {
             </p>
             <Link 
               href="/newsletter"
+              onClick={handleSubscribeClick}
               className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all text-sm"
             >
               Subscribe Now

@@ -11,11 +11,60 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    // Validate email format with stricter rules
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    
+    // Trim and validate email
+    const trimmedEmail = email.trim().toLowerCase()
+    
+    if (!emailRegex.test(trimmedEmail)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+    
+    // Check for junk/test email patterns
+    const junkPatterns = [
+      /^test@/i,
+      /^admin@/i,
+      /^noreply@/i,
+      /@test\./i,
+      /@example\./i,
+      /@localhost/i,
+      /\.test$/i,
+      /^[a-z]+@[a-z]+$/i, // Simple pattern like "abc@def" without proper domain
+    ]
+    
+    if (junkPatterns.some(pattern => pattern.test(trimmedEmail))) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address' },
+        { status: 400 }
+      )
+    }
+    
+    // Check domain structure
+    const domain = trimmedEmail.split('@')[1]
+    if (!domain || !domain.includes('.')) {
+      return NextResponse.json(
+        { error: 'Invalid email domain' },
+        { status: 400 }
+      )
+    }
+    
+    // Check TLD is valid (at least 2 characters)
+    const tld = domain.split('.').pop()
+    if (!tld || tld.length < 2) {
+      return NextResponse.json(
+        { error: 'Invalid email domain' },
+        { status: 400 }
+      )
+    }
+    
+    // Check email length
+    if (trimmedEmail.length < 5 || trimmedEmail.length > 254) {
+      return NextResponse.json(
+        { error: 'Email address is too short or too long' },
         { status: 400 }
       )
     }
@@ -48,7 +97,7 @@ export async function POST(request: NextRequest) {
     // Append the new row to the sheet
     // Assuming the sheet has columns: Name, Email, Timestamp
     const timestamp = new Date().toISOString()
-    const values = [[name, email, timestamp]]
+    const values = [[name.trim(), trimmedEmail, timestamp]]
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: GOOGLE_SHEETS_ID,

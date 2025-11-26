@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import NewsletterForm from '@/components/NewsletterForm'
 
 export default function NewsletterPage() {
@@ -15,12 +14,36 @@ export default function NewsletterPage() {
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            AinTECH Weekly Newsletter
+            AInTECH Weekly Newsletter
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Stay ahead of the curve with our weekly newsletter featuring the latest AI breakthroughs, 
             technological innovations, and curated news with stunning visuals.
           </p>
+        </div>
+
+        {/* Automation Showcase */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 mb-12">
+          <div className="mb-4">
+            <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-medium border border-cyan-500/30 uppercase tracking-wide">
+              Fully Automated with n8n
+            </span>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Hands-off Production Powered by an n8n Workflow
+          </h2>
+          <p className="text-gray-300 mb-6 leading-relaxed">
+            From scheduled research powered by Gemini and Perplexity to smart image selection, HTML generation, 
+            and Gmail delivery—the entire AinTECH Weekly cycle runs on an orchestrated n8n workflow. 
+            The visual below showcases every step that keeps the newsletter accurate, visual, and always on time.
+          </p>
+          <div className="relative w-full rounded-xl overflow-hidden border border-gray-700 bg-gray-900/50">
+            <img
+              src="/images/n8n-workflow.jpg"
+              alt="n8n automation workflow powering the AinTECH Weekly newsletter"
+              className="w-full h-auto"
+            />
+          </div>
         </div>
 
         {/* Newsletter Info Cards */}
