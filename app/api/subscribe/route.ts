@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
 
 export async function POST(request: NextRequest) {
   try {
@@ -128,6 +129,53 @@ export async function POST(request: NextRequest) {
           values: values,
         },
       })
+
+      // After saving to Sheets, send a welcome email (best-effort, non-blocking on failure)
+      const GMAIL_USER = process.env.GMAIL_USER
+      const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
+
+      if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: GMAIL_USER,
+            pass: GMAIL_APP_PASSWORD,
+          },
+        })
+
+        const firstName = name.trim().split(' ')[0] || 'there'
+
+        const mailOptions = {
+          from: `"AInTECH Weekly" <${GMAIL_USER}>`,
+          to: trimmedEmail,
+          subject: 'Welcome to AInTECH Weekly 🚀',
+          text: `Hello ${firstName},
+
+Welcome to AInTECH Weekly!
+
+You’re now subscribed to our weekly newsletter where we break down AI breakthroughs, real-world use cases, and practical insights to keep you ahead in the world of AI and technology.
+
+Stay tuned for your first issue soon.
+
+— The AInTECH Venture Team`,
+          html: `<p>Hello <strong>${firstName}</strong>,</p>
+<p>Welcome to <strong>AInTECH Weekly</strong>!</p>
+<p>You're now subscribed to our weekly newsletter where we share:</p>
+<ul>
+  <li>Key breakthroughs in AI and emerging tech</li>
+  <li>Real-world applications and mini case studies</li>
+  <li>Actionable insights you can apply to your own projects</li>
+</ul>
+<p>Stay tuned for your first issue soon.</p>
+<p>— The <strong>AInTECH Venture</strong> Team</p>`,
+        }
+
+        transporter.sendMail(mailOptions).catch((emailError) => {
+          console.error('Failed to send welcome email:', emailError)
+        })
+      } else {
+        console.warn('Skipping welcome email: GMAIL_USER or GMAIL_APP_PASSWORD not configured')
+      }
     } catch (sheetsError: any) {
       console.error('Google Sheets API error:', sheetsError?.response?.data || sheetsError)
       return NextResponse.json(

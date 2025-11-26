@@ -9,10 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "googleapis": "^128.0.0",
     "next": "^14.2.0",
+    "nodemailer": "^7.0.11",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0",
-    "googleapis": "^128.0.0"
+    "react-dom": "^18.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -24,4 +25,3 @@
     "typescript": "^5.3.3"
   }
 }
-
