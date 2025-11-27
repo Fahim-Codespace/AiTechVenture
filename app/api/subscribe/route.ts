@@ -161,21 +161,95 @@ export async function POST(request: NextRequest) {
 
 Welcome to AInTECH Weekly!
 
-You’re now subscribed to our weekly newsletter where we break down AI breakthroughs, real-world use cases, and practical insights to keep you ahead in the world of AI and technology.
+You're now part of a community shaping the future of AI. Each issue features breakthroughs, real-world applications, detailed summaries, and direct citations to keep you informed.
 
-Stay tuned for your first issue soon.
+See you in your inbox soon!
 
 — The AiTechVenture Team`,
-            html: `<p>Hello <strong>${firstName}</strong>,</p>
-<p>Welcome to <strong>AInTECH Weekly</strong>!</p>
-<p>You're now subscribed to our weekly newsletter where we share:</p>
-<ul>
-  <li>Key breakthroughs in AI and emerging tech</li>
-  <li>Real-world applications and mini case studies</li>
-  <li>Actionable insights you can apply to your own projects</li>
-</ul>
-<p>Stay tuned for your first issue soon.</p>
-<p>— The <strong>AiTechVenture</strong> Team</p>`,
+            html: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to AInTECH Weekly</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:20px; }
+    .container { max-width:600px; margin:0 auto; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.08); }
+    .header { background:#246BFE; padding:30px 20px; text-align:center; color:#fff; }
+    .header h1 { margin:0; font-size:28px; font-weight:bold; }
+    .header p { margin:10px 0 0; font-size:16px; opacity:0.95; }
+    .content { padding:30px 40px; color:#333; }
+    .content h2 { color:#246BFE; font-size:22px; margin:30px 0 15px; }
+    .content p { font-size:16px; line-height:1.6; color:#444; margin:0 0 16px; }
+    .content ul { padding-left:22px; margin:20px 0; }
+    .content li { font-size:16px; line-height:1.6; margin-bottom:12px; color:#444; }
+    .highlight-card {
+      background:linear-gradient(135deg, #ffffff, #fefefe);
+      border-left:6px solid #246BFE;
+      padding:20px;
+      border-radius:8px;
+      margin:25px 0;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      transition:all 0.3s;
+    }
+    .btn {
+      display:inline-block;
+      background:#246BFE;
+      color:#fff;
+      padding:12px 24px;
+      border-radius:6px;
+      text-decoration:none;
+      font-weight:bold;
+      font-size:15px;
+      margin:20px 0;
+      transition:all 0.3s;
+    }
+    .btn:hover { background:#1A5EDD; transform:translateY(-2px); }
+    .footer { background:#f9f9f9; padding:25px 40px; text-align:center; font-size:13px; color:#666; border-top:1px solid #eee; }
+    .footer a { color:#246BFE; text-decoration:none; }
+    @media (max-width:640px) {
+      .content, .footer { padding:20px !important; }
+      .header h1 { font-size:24px !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>AInTECH Weekly</h1>
+      <p>Welcome to the future — one breakthrough at a time</p>
+    </div>
+
+    <div class="content">
+      <p>Hello <strong>${firstName}</strong>,</p>
+
+      <p>You're now part of a new community of builders, researchers, and curious minds shaping the future of AI. Welcome to <strong>AInTECH Weekly!</strong></p>
+
+      <div class="highlight-card">
+        <h2>Here’s what lands in your inbox each week:</h2>
+        <ul>
+          <li>Latest breakthroughs in AI & emerging tech</li>
+          <li>Real-world applications + mini case studies</li>
+          <li>Detailed summeries with relevant images</li>
+          <li>Citations and links of the actual news</li>
+        </ul>
+      </div>
+
+      <p>Your first issue drops this Friday. In the meantime, feel free to say hi or tell us what topics you’re most excited about — we actually read every reply.</p>
+
+      <div style="text-align:center;">
+        <a href="https://aitechventure.vercel.app" class="btn">Visit AiTechVenture →</a>
+      </div>
+
+      <p>See you in your inbox very soon!<br>
+      — The <strong>AiTechVenture</strong> Team</p>
+    </div>
+
+    <div class="footer">
+      <p>You’re subscribed to AInTECH Weekly • <a href="*|UNSUB|*">Unsubscribe</a> • <a href="https://aitechventure.vercel.app">AiTechVenture</a></p>
+    </div>
+  </div>
+</body>
+</html>`,
           }
 
           await transporter.sendMail(mailOptions)
