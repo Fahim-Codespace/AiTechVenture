@@ -216,7 +216,7 @@ See you in your inbox soon!
   <div class="container">
     <div class="header">
       <h1>AInTECH Weekly</h1>
-      <p>Welcome to the future — one breakthrough at a time</p>
+      <p>Curated AI & tech insights — every Saturday</p>
     </div>
 
     <div class="content">
@@ -230,11 +230,11 @@ See you in your inbox soon!
           <li>Latest breakthroughs in AI & emerging tech</li>
           <li>Real-world applications + mini case studies</li>
           <li>Detailed summeries with relevant images</li>
-          <li>Citations and links of the actual news</li>
+          <li>Direct citations and links to keep you informed.</li>
         </ul>
       </div>
 
-      <p>Your first issue drops this Friday. In the meantime, feel free to say hi or tell us what topics you’re most excited about — we actually read every reply.</p>
+      <p>Your first issue drops this Saturday. In the meantime, feel free to say hi or tell us what topics you’re most excited about — we actually read every reply.</p>
 
       <div style="text-align:center;">
         <a href="https://aitechventure.vercel.app" class="btn">Visit AiTechVenture →</a>
