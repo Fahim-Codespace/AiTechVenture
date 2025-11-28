@@ -1,10 +1,8 @@
 <svg width="400" height="120" xmlns="http://www.w3.org/2000/svg">
-  <!-- AInTECH text -->
-  <text x="200" y="60" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#0066FF">
-    <tspan fill="#0066FF">AI</tspan>
-    <tspan fill="#000000">n</tspan>
-    <tspan fill="#0066FF">TECH</tspan>
-  </text>
+  <!-- AInTECH text - using separate text elements for precise control -->
+  <text x="120" y="60" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#0066FF">AI</text>
+  <text x="168" y="60" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#000000">n</text>
+  <text x="188" y="60" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#0066FF">TECH</text>
   
   <!-- Weekly text -->
   <text x="200" y="100" font-family="Arial, sans-serif" font-size="36" font-weight="bold" text-anchor="middle" fill="#000000">Weekly</text>
