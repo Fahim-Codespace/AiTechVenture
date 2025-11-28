@@ -101,34 +101,81 @@ export async function POST(request: NextRequest) {
 
       const sheets = google.sheets({ version: 'v4', auth })
 
-      // First, check if this email is already subscribed (assuming column B holds the email)
-      const existing = await sheets.spreadsheets.values.get({
-        spreadsheetId: GOOGLE_SHEETS_ID,
-        range: 'Sheet1!B:B',
-      })
+      // Get all data to check if email exists and its current status
+      let emailRowIndex = -1
+      let currentStatus = ''
+      let isResubscription = false
 
-      const existingEmails = (existing.data.values || []).flat().map((v: string) => v.toLowerCase())
+      try {
+        const response = await sheets.spreadsheets.values.get({
+          spreadsheetId: GOOGLE_SHEETS_ID,
+          range: 'Sheet1!A:D',
+        })
 
-      if (existingEmails.includes(trimmedEmail)) {
+        const rows = response.data.values || []
+        
+        // Skip header row (row 0) and find the email
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i]
+          if (row && row.length > 1 && row[1]?.toString().toLowerCase() === trimmedEmail) {
+            emailRowIndex = i + 1 // +1 because Sheets API uses 1-based indexing
+            currentStatus = row[3]?.toString().toLowerCase() || ''
+            isResubscription = currentStatus === 'unsubscribed'
+            break
+          }
+        }
+      } catch (rangeError: any) {
+        // If range doesn't exist or sheet is empty, that's okay - we'll just append
+        console.log('Could not check for existing emails (sheet might be empty):', rangeError?.message)
+      }
+
+      const timestamp = new Date().toISOString()
+
+      // If email exists and is already subscribed, return error
+      if (emailRowIndex !== -1 && currentStatus === 'subscribed') {
         return NextResponse.json(
           { error: 'This email is already subscribed.' },
           { status: 409 }
         )
       }
 
-      // Append the new row to the sheet
-      // Assuming the sheet has columns: Name, Email, Timestamp
-      const timestamp = new Date().toISOString()
-      const values = [[name.trim(), trimmedEmail, timestamp]]
+      // If email exists but is unsubscribed, update the row (resubscription)
+      if (isResubscription && emailRowIndex !== -1) {
+        // Update name (column A), timestamp (column C), and status (column D)
+        await sheets.spreadsheets.values.batchUpdate({
+          spreadsheetId: GOOGLE_SHEETS_ID,
+          requestBody: {
+            valueInputOption: 'USER_ENTERED',
+            data: [
+              {
+                range: `Sheet1!A${emailRowIndex}`,
+                values: [[name.trim()]],
+              },
+              {
+                range: `Sheet1!C${emailRowIndex}`,
+                values: [[timestamp]],
+              },
+              {
+                range: `Sheet1!D${emailRowIndex}`,
+                values: [['subscribed']],
+              },
+            ],
+          },
+        })
+      } else {
+        // Email doesn't exist, append new row
+        const values = [[name.trim(), trimmedEmail, timestamp, 'subscribed']]
 
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: GOOGLE_SHEETS_ID,
-        range: 'Sheet1!A:C', // Adjust the range based on your sheet structure
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: values,
-        },
-      })
+        await sheets.spreadsheets.values.append({
+          spreadsheetId: GOOGLE_SHEETS_ID,
+          range: 'Sheet1!A1', // Start from A1, append will automatically find next empty row
+          valueInputOption: 'USER_ENTERED',
+          insertDataOption: 'INSERT_ROWS',
+          requestBody: {
+            values: values,
+          },
+        })
+      }
 
       // After saving to Sheets, send a welcome email (best-effort, non-blocking on failure)
       const GMAIL_USER = process.env.GMAIL_USER
@@ -262,8 +309,10 @@ See you in your inbox soon!
       }
     } catch (sheetsError: any) {
       console.error('Google Sheets API error:', sheetsError?.response?.data || sheetsError)
+      const errorMessage = sheetsError?.response?.data?.error?.message || sheetsError?.message || 'Unknown error'
+      console.error('Detailed error:', JSON.stringify(sheetsError?.response?.data || sheetsError, null, 2))
       return NextResponse.json(
-        { error: 'Failed to save subscription. Please try again later.' },
+        { error: `Failed to save subscription: ${errorMessage}. Please try again later.` },
         { status: 500 }
       )
     }
