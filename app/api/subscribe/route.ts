@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
           const mailOptions = {
             from: `"AInTECH Weekly" <${GMAIL_USER}>`,
             to: trimmedEmail,
-            subject: 'Welcome to AInTECH Weekly 🚀',
+            subject: 'Welcome to AInTECH Weekly 🤖',
             text: `Hello ${firstName},
 
 Welcome to AInTECH Weekly!
@@ -269,7 +269,7 @@ See you in your inbox soon!
     <div class="content">
       <p>Hello <strong>${firstName}</strong>,</p>
 
-      <p>You're now part of a new community of builders, researchers, and curious minds shaping the future of AI. Welcome to <strong>AInTECH Weekly!</strong></p>
+      <p>You're now part of a community of builders, researchers, and curious minds shaping the future of AI. Welcome to <strong>AInTECH Weekly!</strong></p>
 
       <div class="highlight-card">
         <h2>Here’s what lands in your inbox each week:</h2>
@@ -292,7 +292,7 @@ See you in your inbox soon!
     </div>
 
     <div class="footer">
-      <p>You’re subscribed to AInTECH Weekly • <a href="*|UNSUB|*">Unsubscribe</a> • <a href="https://aitechventure.vercel.app">AiTechVenture</a></p>
+      <p>You’re subscribed to AInTECH Weekly <br>• <a href="https://aitechventure.vercel.app/unsubscribe">Unsubscribe</a> •<br>◈ <a href="https://aitechventure.vercel.app">AiTechVenture</a> ◈</p>
     </div>
   </div>
 </body>
