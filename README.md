@@ -1,4 +1,5 @@
-AiTechVenture is project for serving the latest info about AIs and Technologies around the world. We have also fully automated our weekly newsletter. Have some plannings of launching a custom newsletter service in near future...stay tuned😉
+AiTechVenture is project for serving the latest info about AIs and Technologies around the world. We have also fully automated our weekly newsletter. Every Saturday our newsletter automatically lands on your mail inbox. I have some thoughts of launching a custom newsletter service in near future...stay tuned😉
+Explore here: https://aitechventure.vercel.app
 <br>
 
 
