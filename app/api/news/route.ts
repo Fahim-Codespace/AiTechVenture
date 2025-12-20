@@ -31,11 +31,6 @@ const RSS_FEEDS = [
     category: 'AI Research',
   },
   {
-    name: 'Wired',
-    url: 'https://www.wired.com/feed/rss',
-    category: 'Tech Giants',
-  },
-  {
     name: 'VentureBeat AI',
     url: 'https://venturebeat.com/ai/feed/',
     category: 'AI News',
@@ -168,4 +163,5 @@ export async function GET() {
     )
   }
 }
+
 
