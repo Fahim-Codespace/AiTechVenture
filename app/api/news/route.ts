@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import Parser from 'rss-parser'
 
+// Revalidate this route's response at least once every 24 hours (in seconds)
+// This ensures the news feed is refreshed daily in production.
+export const revalidate = 60 * 60 * 24
+
 const parser = new Parser({
   timeout: 10000,
   customFields: {
