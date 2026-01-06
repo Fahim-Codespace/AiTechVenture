@@ -1,15 +1,6 @@
 import { NextResponse } from 'next/server'
 import Parser from 'rss-parser'
-import { 
-  getNewsForDate, 
-  saveNewsForDate, 
-  getTodayDateString,
-  NewsItem as StorageNewsItem 
-} from '@/lib/news-storage'
-
-// Revalidate this route's response at least once every 24 hours (in seconds)
-// This ensures the news feed is refreshed daily in production.
-export const revalidate = 60 * 60 * 24
+import { saveNewsForDate, getTodayDateString, cleanupOldNews, NewsItem } from '@/lib/news-storage'
 
 const parser = new Parser({
   timeout: 10000,
@@ -52,17 +43,6 @@ const RSS_FEEDS = [
   },
 ]
 
-interface NewsItem {
-  title: string
-  link: string
-  pubDate: string
-  contentSnippet: string
-  content?: string
-  image?: string
-  source: string
-  category: string
-}
-
 // Keywords to filter relevant news
 const RELEVANT_KEYWORDS = [
   'ai', 'artificial intelligence', 'machine learning', 'deep learning',
@@ -99,7 +79,7 @@ function extractImage(item: any): string | undefined {
   return undefined
 }
 
-async function fetchFreshNews(): Promise<NewsItem[]> {
+async function fetchAndProcessNews(): Promise<NewsItem[]> {
   const allNews: NewsItem[] = []
 
   // Fetch news from all RSS feeds in parallel
@@ -164,46 +144,58 @@ async function fetchFreshNews(): Promise<NewsItem[]> {
   return uniqueNews.slice(0, 30)
 }
 
-export async function GET() {
+// This endpoint will be called by Vercel Cron at 12 AM daily
+export async function GET(request: Request) {
   try {
-    const today = getTodayDateString()
+    // Verify the request is from Vercel Cron or has proper authentication
+    const url = new URL(request.url)
+    const cronSecret = url.searchParams.get('secret')
+    const authHeader = request.headers.get('authorization')
+    const vercelCronHeader = request.headers.get('x-vercel-cron')
     
-    // Try to get saved news for today first
-    let news = await getNewsForDate(today)
+    // Allow if: Vercel cron header exists, OR secret query param matches, OR auth header matches
+    const isAuthorized = 
+      vercelCronHeader === '1' || 
+      (process.env.CRON_SECRET && cronSecret === process.env.CRON_SECRET) ||
+      (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`)
     
-    // If no saved news for today, fetch fresh news and save it
-    if (!news || news.length === 0) {
-      console.log('No saved news for today, fetching fresh news...')
-      news = await fetchFreshNews()
-      
-      // Save the fetched news (don't wait for it to complete)
-      saveNewsForDate(news, today).catch(error => {
-        console.error('Error saving news (non-blocking):', error)
-      })
-    } else {
-      console.log(`Serving saved news for ${today}: ${news.length} items`)
+    // Only require auth if CRON_SECRET is set (optional security)
+    if (process.env.CRON_SECRET && !isAuthorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
     }
 
-    return NextResponse.json({ news: news || [] }, { status: 200 })
+    console.log('Starting scheduled news refresh at', new Date().toISOString())
+    
+    // Fetch fresh news
+    const news = await fetchAndProcessNews()
+    
+    // Save to file storage
+    const today = getTodayDateString()
+    await saveNewsForDate(news, today)
+    
+    // Clean up old news (keep last 30 days)
+    await cleanupOldNews(30)
+    
+    console.log(`News refresh completed: ${news.length} items saved for ${today}`)
+    
+    return NextResponse.json({
+      success: true,
+      date: today,
+      itemsSaved: news.length,
+      message: 'News refreshed successfully',
+    })
   } catch (error) {
-    console.error('Error fetching news:', error)
-    
-    // Fallback: try to get saved news even if fetch fails
-    try {
-      const today = getTodayDateString()
-      const savedNews = await getNewsForDate(today)
-      if (savedNews && savedNews.length > 0) {
-        return NextResponse.json({ news: savedNews }, { status: 200 })
-      }
-    } catch (fallbackError) {
-      console.error('Fallback to saved news also failed:', fallbackError)
-    }
-    
+    console.error('Error in cron job:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch news', news: [] },
+      { 
+        error: 'Failed to refresh news',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
 }
-
 
