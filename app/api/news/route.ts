@@ -4,12 +4,13 @@ import {
   getNewsForDate, 
   saveNewsForDate, 
   getTodayDateString,
+  getNewsForLastDays,
   NewsItem as StorageNewsItem 
 } from '@/lib/news-storage'
 
-// Revalidate this route's response at least once every 24 hours (in seconds)
-// This ensures the news feed is refreshed daily in production.
-export const revalidate = 60 * 60 * 24
+// Revalidate this route's response at least once every 6 hours (in seconds)
+// This ensures the news feed is refreshed multiple times per day.
+export const revalidate = 60 * 60 * 6
 
 const parser = new Parser({
   timeout: 10000,
@@ -18,22 +19,12 @@ const parser = new Parser({
   },
 })
 
-// Trusted RSS sources for AI, tech, and business news
+// Trusted RSS sources focused on AI models, innovations, and technology
 const RSS_FEEDS = [
   {
-    name: 'TechCrunch',
-    url: 'https://techcrunch.com/feed/',
-    category: 'Tech Giants',
-  },
-  {
-    name: 'The Verge',
-    url: 'https://www.theverge.com/rss/index.xml',
-    category: 'Tech Giants',
-  },
-  {
-    name: 'Ars Technica',
-    url: 'https://feeds.arstechnica.com/arstechnica/index',
-    category: 'Tech Giants',
+    name: 'VentureBeat AI',
+    url: 'https://venturebeat.com/ai/feed/',
+    category: 'AI Innovations',
   },
   {
     name: 'MIT Technology Review',
@@ -41,14 +32,39 @@ const RSS_FEEDS = [
     category: 'AI Research',
   },
   {
-    name: 'VentureBeat AI',
-    url: 'https://venturebeat.com/ai/feed/',
-    category: 'AI News',
+    name: 'TechCrunch AI',
+    url: 'https://techcrunch.com/tag/artificial-intelligence/feed/',
+    category: 'AI Innovations',
   },
   {
-    name: 'Reuters Technology',
-    url: 'https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best',
-    category: 'Business Deals',
+    name: 'The Verge AI',
+    url: 'https://www.theverge.com/ai-artificial-intelligence/rss/index.xml',
+    category: 'AI Technology',
+  },
+  {
+    name: 'Ars Technica',
+    url: 'https://feeds.arstechnica.com/arstechnica/index',
+    category: 'Tech Innovations',
+  },
+  {
+    name: 'IEEE Spectrum AI',
+    url: 'https://spectrum.ieee.org/rss/blog/artificial-intelligence/fulltext',
+    category: 'AI Research',
+  },
+  {
+    name: 'Google AI Blog',
+    url: 'https://ai.googleblog.com/feeds/posts/default',
+    category: 'AI Models',
+  },
+  {
+    name: 'OpenAI Blog',
+    url: 'https://openai.com/blog/rss.xml',
+    category: 'AI Models',
+  },
+  {
+    name: 'Anthropic Blog',
+    url: 'https://www.anthropic.com/news/rss',
+    category: 'AI Models',
   },
 ]
 
@@ -63,19 +79,78 @@ interface NewsItem {
   category: string
 }
 
-// Keywords to filter relevant news
-const RELEVANT_KEYWORDS = [
-  'ai', 'artificial intelligence', 'machine learning', 'deep learning',
-  'openai', 'google', 'microsoft', 'apple', 'meta', 'amazon', 'nvidia',
-  'chatgpt', 'gpt', 'llm', 'model', 'launch', 'release',
-  'acquisition', 'merger', 'deal', 'investment', 'funding',
-  'startup', 'tech', 'technology', 'innovation',
-  'sam altman', 'elon musk', 'sundar pichai', 'satya nadella',
+// Priority keywords for AI models and innovations (high priority)
+const HIGH_PRIORITY_KEYWORDS = [
+  // AI Models & LLMs
+  'ai model', 'llm', 'large language model', 'gpt-', 'gpt', 'chatgpt', 'claude', 'gemini',
+  'gpt-4', 'gpt-3', 'gpt-5', 'claude 3', 'claude 4', 'gemini pro', 'gemini ultra',
+  'llama', 'mistral', 'mixtral', 'falcon', 'palm', 'bard', 'copilot',
+  'transformer', 'neural network', 'deep learning', 'machine learning model',
+  
+  // Major AI Companies & Labs
+  'openai', 'anthropic', 'google ai', 'deepmind', 'meta ai', 'microsoft ai',
+  'xai', 'inflection ai', 'cohere', 'ai21 labs', 'hugging face',
+  
+  // Model Launches & Releases
+  'model launch', 'model release', 'new model', 'announces', 'unveils', 'introduces',
+  'ai breakthrough', 'ai innovation', 'breakthrough', 'milestone',
+  
+  // AI Technologies & Techniques
+  'multimodal', 'computer vision', 'nlp', 'natural language processing',
+  'reinforcement learning', 'generative ai', 'diffusion model', 'stable diffusion',
+  'dall-e', 'midjourney', 'sora', 'video generation', 'image generation',
+  'agent', 'autonomous agent', 'ai agent', 'reasoning', 'chain of thought',
+  
+  // Research & Development
+  'ai research', 'paper', 'arxiv', 'ai technology', 'ai advancement',
+  'benchmark', 'performance', 'capability', 'improvement',
+]
+
+// Secondary keywords for general AI and tech news
+const SECONDARY_KEYWORDS = [
+  'artificial intelligence', 'ai', 'machine learning', 'deep learning',
+  'nvidia', 'amd', 'ai chip', 'gpu', 'ai hardware',
+  'ai startup', 'ai company', 'ai investment', 'ai funding',
+  'robotics', 'autonomous', 'self-driving', 'ai ethics',
+  'tech innovation', 'technology breakthrough', 'innovation',
 ]
 
 function isRelevantNews(title: string, content: string): boolean {
   const searchText = (title + ' ' + content).toLowerCase()
-  return RELEVANT_KEYWORDS.some(keyword => searchText.includes(keyword.toLowerCase()))
+  
+  // Check high priority keywords first (AI models, innovations)
+  const hasHighPriority = HIGH_PRIORITY_KEYWORDS.some(keyword => 
+    searchText.includes(keyword.toLowerCase())
+  )
+  
+  // Also check secondary keywords
+  const hasSecondary = SECONDARY_KEYWORDS.some(keyword => 
+    searchText.includes(keyword.toLowerCase())
+  )
+  
+  return hasHighPriority || hasSecondary
+}
+
+// Score news items to prioritize AI models and innovations
+function scoreNewsItem(title: string, content: string): number {
+  const searchText = (title + ' ' + content).toLowerCase()
+  let score = 0
+  
+  // High priority keywords get more points
+  HIGH_PRIORITY_KEYWORDS.forEach(keyword => {
+    if (searchText.includes(keyword.toLowerCase())) {
+      score += 3
+    }
+  })
+  
+  // Secondary keywords get fewer points
+  SECONDARY_KEYWORDS.forEach(keyword => {
+    if (searchText.includes(keyword.toLowerCase())) {
+      score += 1
+    }
+  })
+  
+  return score
 }
 
 function extractImage(item: any): string | undefined {
@@ -125,7 +200,7 @@ async function fetchFreshNews(): Promise<NewsItem[]> {
         .filter(item => 
           isRelevantNews(item.title, item.contentSnippet + ' ' + (item.content || ''))
         )
-        .slice(0, 5) // Limit to 5 items per feed
+        .slice(0, 10) // Increase limit to get more items per feed
 
       return items
     } catch (error) {
@@ -136,62 +211,112 @@ async function fetchFreshNews(): Promise<NewsItem[]> {
 
   const results = await Promise.all(feedPromises)
   
-  // Flatten and sort by date
+  // Flatten and add scoring
   results.forEach(items => {
     allNews.push(...items)
   })
 
-  // Sort by date (newest first)
-  allNews.sort((a, b) => {
-    const dateA = new Date(a.pubDate).getTime()
-    const dateB = new Date(b.pubDate).getTime()
-    return dateB - dateA
+  // Score and sort by relevance (score) first, then by date
+  const scoredNews = allNews.map(item => ({
+    item,
+    score: scoreNewsItem(item.title, item.contentSnippet + ' ' + (item.content || '')),
+    date: new Date(item.pubDate).getTime(),
+  }))
+
+  // Sort by score (descending) then by date (newest first)
+  scoredNews.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score // Higher score first
+    }
+    return b.date - a.date // Newer first
   })
 
-  // Remove duplicates based on title similarity
+  // Remove duplicates based on link (more reliable than title)
   const uniqueNews: NewsItem[] = []
-  const seenTitles = new Set<string>()
+  const seenLinks = new Set<string>()
   
-  for (const item of allNews) {
-    const normalizedTitle = item.title.toLowerCase().trim()
-    if (!seenTitles.has(normalizedTitle)) {
-      seenTitles.add(normalizedTitle)
+  for (const { item } of scoredNews) {
+    if (!seenLinks.has(item.link)) {
+      seenLinks.add(item.link)
       uniqueNews.push(item)
     }
   }
 
-  // Limit to 30 most recent items
-  return uniqueNews.slice(0, 30)
+  // Return top 50 items (prioritized by AI model/innovation relevance)
+  return uniqueNews.slice(0, 50)
 }
 
 export async function GET() {
   try {
     const today = getTodayDateString()
     
-    // Try to get saved news for today first
-    let news = await getNewsForDate(today)
+    // Get news from the last 7 days to ensure previous news stays stored
+    let news = await getNewsForLastDays(7)
     
-    // If no saved news for today, fetch fresh news and save it
-    if (!news || news.length === 0) {
-      console.log('No saved news for today, fetching fresh news...')
-      news = await fetchFreshNews()
-      
-      // Save the fetched news (don't wait for it to complete)
-      saveNewsForDate(news, today).catch(error => {
-        console.error('Error saving news (non-blocking):', error)
-      })
+    // Check if we have fresh news for today
+    const todayNews = await getNewsForDate(today)
+    const hasTodayNews = todayNews && todayNews.length > 0
+    
+    // Determine if we need to refresh
+    // Refresh if: no news for today, or news is older than 6 hours, or very few items
+    let needsRefresh = false
+    if (!hasTodayNews) {
+      needsRefresh = true
+      console.log('No saved news for today, will refresh...')
+    } else if (todayNews.length < 10) {
+      // If we have very few items, refresh to get more
+      needsRefresh = true
+      console.log(`Only ${todayNews.length} items for today, will refresh to get more...`)
     } else {
-      console.log(`Serving saved news for ${today}: ${news.length} items`)
+      // Check if today's news is stale (older than 6 hours)
+      const now = new Date()
+      const sixHoursAgo = new Date(now.getTime() - 6 * 60 * 60 * 1000)
+      const latestNewsDate = todayNews.length > 0 
+        ? new Date(todayNews[0].pubDate)
+        : null
+      
+      if (!latestNewsDate || latestNewsDate < sixHoursAgo) {
+        needsRefresh = true
+        console.log('Today\'s news is stale (older than 6 hours), will refresh...')
+      }
     }
-
+    
+    // If refresh is needed, fetch fresh news in the background
+    if (needsRefresh) {
+      // Fetch fresh news asynchronously (don't block the response)
+      fetchFreshNews()
+        .then(freshNews => {
+          // Save today's news
+          return saveNewsForDate(freshNews, today)
+        })
+        .then(() => {
+          console.log(`Fresh news saved for ${today}`)
+        })
+        .catch(error => {
+          console.error('Error fetching/saving fresh news (non-blocking):', error)
+        })
+    }
+    
+    // If we have news from last 7 days, return it
+    if (news && news.length > 0) {
+      console.log(`Serving news from last 7 days: ${news.length} items`)
+      return NextResponse.json({ news }, { status: 200 })
+    }
+    
+    // If no stored news, try to fetch fresh news synchronously
+    console.log('No stored news found, fetching fresh news...')
+    news = await fetchFreshNews()
+    
+    // Save the fetched news
+    await saveNewsForDate(news, today)
+    
     return NextResponse.json({ news: news || [] }, { status: 200 })
   } catch (error) {
     console.error('Error fetching news:', error)
     
-    // Fallback: try to get saved news even if fetch fails
+    // Fallback: try to get any saved news from last 7 days
     try {
-      const today = getTodayDateString()
-      const savedNews = await getNewsForDate(today)
+      const savedNews = await getNewsForLastDays(7)
       if (savedNews && savedNews.length > 0) {
         return NextResponse.json({ news: savedNews }, { status: 200 })
       }

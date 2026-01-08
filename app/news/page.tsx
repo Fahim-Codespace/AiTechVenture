@@ -16,8 +16,13 @@ interface NewsItem {
 }
 
 const categoryGradients: Record<string, string> = {
+  'AI Models': 'from-blue-500 to-cyan-500',
+  'AI Innovations': 'from-purple-500 to-pink-500',
+  'AI Research': 'from-indigo-500 to-purple-500',
+  'AI Technology': 'from-cyan-500 to-blue-500',
+  'Tech Innovations': 'from-amber-500 to-orange-500',
+  // Legacy categories for backward compatibility
   'AI News': 'from-blue-500 to-cyan-500',
-  'AI Research': 'from-purple-500 to-pink-500',
   'Tech Giants': 'from-amber-500 to-orange-500',
   'Business Deals': 'from-green-500 to-emerald-500',
   'Default': 'from-blue-500 to-purple-500',
