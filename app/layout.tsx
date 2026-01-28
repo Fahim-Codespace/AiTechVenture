@@ -5,12 +5,31 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { SubscriptionModalProvider } from '@/components/SubscriptionModalContext'
 import SubscriptionModal from '@/components/SubscriptionModal'
+import { getSiteUrl } from '@/lib/site'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AiTechVenture - Exploring AI and Technologies',
-  description: 'Discover the latest in AI and modern technologies. Stay updated with cutting-edge innovations and insights.',
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: 'AiTechVenture - Exploring AI and Technologies',
+    template: '%s | AiTechVenture',
+  },
+  description:
+    'Discover the latest in AI and modern technologies. Stay updated with cutting-edge innovations and insights.',
+  applicationName: 'AiTechVenture',
+  openGraph: {
+    title: 'AiTechVenture',
+    description:
+      'Discover the latest in AI and modern technologies. Stay updated with cutting-edge innovations and insights.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AiTechVenture',
+    description:
+      'Discover the latest in AI and modern technologies. Stay updated with cutting-edge innovations and insights.',
+  },
 }
 
 export default function RootLayout({

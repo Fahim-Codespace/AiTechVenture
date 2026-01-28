@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server'
 import Parser from 'rss-parser'
 import { saveNewsForDate, getTodayDateString, cleanupOldNews, NewsItem } from '@/lib/news-storage'
 
+// This is a server-only cron endpoint (uses request headers + URL params).
+// Force dynamic evaluation so Next.js doesn't attempt static rendering during build.
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 const parser = new Parser({
   timeout: 10000,
   customFields: {

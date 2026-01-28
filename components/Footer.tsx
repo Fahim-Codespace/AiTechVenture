@@ -54,8 +54,33 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/resources" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Resources
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Contact
+                </Link>
+              </li>
+              <li>
                 <Link href="/newsletter" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Newsletter
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Terms
                 </Link>
               </li>
             </ul>
@@ -66,6 +91,7 @@ export default function Footer() {
             <p className="text-gray-400 text-sm mb-4">
               Subscribe to our newsletter for the latest updates on AI and technology.
             </p>
+            <div className="flex flex-wrap gap-3">
             <Link 
               href="/newsletter"
               onClick={handleSubscribeClick}
@@ -73,6 +99,13 @@ export default function Footer() {
             >
               Subscribe Now
             </Link>
+              <Link
+                href="/contact"
+                className="inline-block bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-all border border-gray-700 text-sm"
+              >
+                Contact Us
+              </Link>
+            </div>
           </div>
         </div>
 

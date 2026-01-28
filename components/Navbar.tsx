@@ -38,6 +38,15 @@ export default function Navbar() {
             <Link href="/news" className="text-gray-300 hover:text-white transition-colors">
               News
             </Link>
+            <Link href="/resources" className="text-gray-300 hover:text-white transition-colors">
+              Resources
+            </Link>
+            <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+              About
+            </Link>
+            <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+              Contact
+            </Link>
             <Link href="/newsletter" className="text-gray-300 hover:text-white transition-colors">
               Newsletter
             </Link>
@@ -79,6 +88,15 @@ export default function Navbar() {
             </Link>
             <Link href="/news" className="block text-gray-300 hover:text-white transition-colors py-2">
               News
+            </Link>
+            <Link href="/resources" className="block text-gray-300 hover:text-white transition-colors py-2">
+              Resources
+            </Link>
+            <Link href="/about" className="block text-gray-300 hover:text-white transition-colors py-2">
+              About
+            </Link>
+            <Link href="/contact" className="block text-gray-300 hover:text-white transition-colors py-2">
+              Contact
             </Link>
             <Link href="/newsletter" className="block text-gray-300 hover:text-white transition-colors py-2">
               Newsletter
